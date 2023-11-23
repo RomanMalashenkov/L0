@@ -55,7 +55,7 @@ func (ns *Nats) Subscribe() (*Order, error) {
 
 	ch := make(chan *models.Order)
 
-	_, err := ns.sc.Subscribe(ns.config.Topic, func(mes *stan.Msg) {
+	_, err := ns.sca.Subscribe(ns.config.Topic, func(mes *stan.Msg) {
 
 		err := json.Unmarshal(mes.Data, &rc)
 

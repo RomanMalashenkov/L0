@@ -1,0 +1,22 @@
+app:
+  name: 'L0_WB'
+  version: '1.0'
+
+postgres:
+  host: ''
+  port: '5432'
+  user: 'order_service_user'
+  password: '1234'
+  name: 'testwb_database'
+  pg_driver: ''
+
+http:
+  host: ''
+  port: ''
+
+nats:
+  host: 'localhost'
+  port: '4222'
+  cluster: ''
+  client: ''
+  topic: ''

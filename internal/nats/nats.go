@@ -39,6 +39,7 @@ func NewNats(ncfg *config.Nats) *Nats {
 	return &Nats{ncfg, sc, nc}
 }
 
+// отправка сообщений (публикация сообщ о заказе)
 func (ns *Nats) Publish(message *models.Order) error {
 
 	ord, err := json.MarshalIndent(message, "", "\t")
@@ -47,31 +48,37 @@ func (ns *Nats) Publish(message *models.Order) error {
 		fmt.Printf("Error at marshaling new order: %v", err)
 	}
 
-	return ns.sc.Publish(ns.config.Topic, ord)
+	return ns.sc.Publish(ns.config.Topic, ord) //публикует в натс (публиш тут функция с библиотеки, а не метод)
 }
 
-// два метода для структуры
+// получение сообщений (подписка на сообщения)
 func (ns *Nats) Subscribe() (*models.Order, error) {
 
-	var rc models.Order
+	var rc *models.Order
 
 	ch := make(chan *models.Order)
-
+	/*Подписывается на тему в NATS через ns.sc.Subscribe, который
+	ожидает получения сообщения)*/
 	_, err := ns.sc.Subscribe(ns.config.Topic, func(mes *stan.Msg) {
 
+		// Когда сообщ поступило - распаковывается с помощью json.Unmarshal в объект models.Order
 		err := json.Unmarshal(mes.Data, &rc)
 
 		if err != nil {
 			fmt.Printf("Error at Unmarshaling: %v", err)
 		}
 
-		ch <- &rc
+		ch <- rc //cообщ отправляется в канал
 	})
 
 	if err != nil {
 		fmt.Printf("Error at subscription: %v", err)
 	}
 
+	/*ожиданиe сообщения от канала.
+	блокируется до тех пор, пока не получит сообщение, и возвращает распакованное
+	сообщение о заказе или же возвращает ошибку stan.ErrTimeout,
+	если происходит таймаут (60 секунд в данном случае).*/
 	select {
 	case rc := <-ch:
 		return rc, nil

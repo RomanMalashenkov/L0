@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"test_wb/internal/models"
 	"time"
-
-	"github.com/RomanMalashenkov/internal/models"
 
 	"github.com/google/uuid" // Импорт пакета для генерации UUID
 )
@@ -17,16 +16,39 @@ func GenerateOrder() *models.Order {
 	var itemCount = 1 + rand.Intn(5) // Генерация случайного количества товаров от 1 до 5
 	items := make([]models.Item, itemCount)
 	for i := range items {
-		items[i] = models.Item{0, "", 0, "", "", 0, "", 0, 0, "", 0}
+		items[i] = models.Item{
+			ChrtId:      0,
+			TrackNumber: "",
+			Price:       0,
+			Rid:         "",
+			Name:        "",
+			Sale:        0,
+			Size:        "",
+			TotalPrice:  0,
+			NmId:        0,
+			Brand:       "",
+			Status:      0,
+		}
 	}
 
 	// Формирование заказа
 	order := models.Order{
-		OrderUid:          orderUid,
-		TrackNumber:       "WBILMTESTTRACK",
-		Entry:             "WBIL",
-		Delivery:          generateOrderDelivery(),
-		Payment:           models.Payment{"", "", "", "", 0, 0, "", 0, 0, 0},
+		OrderUid:    orderUid,
+		TrackNumber: "WBILMTESTTRACK",
+		Entry:       "WBIL",
+		Delivery:    generateOrderDelivery(),
+		Payment: models.Payment{
+			Transaction:  "",
+			RequestId:    "",
+			Currency:     "",
+			Provider:     "",
+			Amount:       0,
+			PaymentDt:    0,
+			Bank:         "",
+			DeliveryCost: 0,
+			GoodsTotal:   0,
+			CustomFee:    0,
+		},
 		Items:             items,
 		Locale:            "en",
 		InternalSignature: "",

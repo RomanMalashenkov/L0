@@ -3,6 +3,7 @@ package nats
 import (
 	"encoding/json"
 	"fmt"
+	"test_wb/config"
 	"test_wb/internal/models"
 	"time"
 
@@ -10,13 +11,13 @@ import (
 	stan "github.com/nats-io/stan.go"
 )
 
-type NNats struct {
-	config *Nats
+type Nats struct {
+	config *config.Nats
 	sc     stan.Conn
 	nc     *nats.Conn
 }
 
-func NewNats(ncfg *Nats) *NNats {
+func NewNats(ncfg *config.Nats) *Nats {
 	natsUrl := fmt.Sprintf("nats://%s:%s", ncfg.Host, ncfg.Port)
 
 	// Подключение к серверу NATS
@@ -35,10 +36,10 @@ func NewNats(ncfg *Nats) *NNats {
 	}
 	defer sc.Close()
 
-	return &NNats{ncfg, sc, nc}
+	return &Nats{ncfg, sc, nc}
 }
 
-func (ns *Nats) Publish(message *Order) error {
+func (ns *Nats) Publish(message *models.Order) error {
 
 	ord, err := json.MarshalIndent(message, "", "\t")
 
@@ -46,17 +47,17 @@ func (ns *Nats) Publish(message *Order) error {
 		fmt.Printf("Error at marshaling new order: %v", err)
 	}
 
-	return ns.sc.Publish(ns.Topic, ord)
+	return ns.sc.Publish(ns.config.Topic, ord)
 }
 
 // два метода для структуры
-func (ns *Nats) Subscribe() (*Order, error) {
+func (ns *Nats) Subscribe() (*models.Order, error) {
 
 	var rc models.Order
 
 	ch := make(chan *models.Order)
 
-	_, err := ns.sca.Subscribe(ns.config.Topic, func(mes *stan.Msg) {
+	_, err := ns.sc.Subscribe(ns.config.Topic, func(mes *stan.Msg) {
 
 		err := json.Unmarshal(mes.Data, &rc)
 

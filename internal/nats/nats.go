@@ -1,8 +1,9 @@
-package main
+package nats
 
 import (
 	"encoding/json"
 	"fmt"
+	"test_wb/internal/models"
 	"time"
 
 	nats "github.com/nats-io/nats.go"

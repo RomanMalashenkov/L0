@@ -6,25 +6,27 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/RomanMalashenkov/internal/models"
+
 	"github.com/google/uuid" // Импорт пакета для генерации UUID
 )
 
-func GenerateOrder() *Order {
+func GenerateOrder() *models.Order {
 	orderUid := uuid.NewString() // Генерация уникального идентификатора заказа
 
 	var itemCount = 1 + rand.Intn(5) // Генерация случайного количества товаров от 1 до 5
-	items := make([]Item, itemCount)
+	items := make([]models.Item, itemCount)
 	for i := range items {
-		items[i] = Item{0, "", 0, "", "", 0, "", 0, 0, "", 0}
+		items[i] = models.Item{0, "", 0, "", "", 0, "", 0, 0, "", 0}
 	}
 
 	// Формирование заказа
-	order := Order{
+	order := models.Order{
 		OrderUid:          orderUid,
 		TrackNumber:       "WBILMTESTTRACK",
 		Entry:             "WBIL",
 		Delivery:          generateOrderDelivery(),
-		Payment:           Payment{"", "", "", "", 0, 0, "", 0, 0, 0},
+		Payment:           models.Payment{"", "", "", "", 0, 0, "", 0, 0, 0},
 		Items:             items,
 		Locale:            "en",
 		InternalSignature: "",
@@ -43,11 +45,11 @@ func GenerateOrder() *Order {
 }
 
 // Генерация случайной информации о доставке
-func generateOrderDelivery() Delivery {
+func generateOrderDelivery() models.Delivery {
 	names := []string{"Test Testov", "Roman Malashenckov", "Ivan Ivanov"}
 	addresse := []string{"Ploshad Mira 15", "Naberegnaja 243", "Prospect Randoma 2"}
 
-	delivery := &Delivery{
+	delivery := &models.Delivery{
 		Name:    names[rand.Intn(len(names))],
 		Phone:   "+7" + strconv.Itoa(1000000000+rand.Intn(9000000000)),
 		Zip:     strconv.Itoa(100000 + rand.Intn(900000)),
@@ -61,7 +63,7 @@ func generateOrderDelivery() Delivery {
 }
 
 // Генерация случайной информации о платеже
-func generateOrderPayment(order *Order) {
+func generateOrderPayment(order *models.Order) {
 	currency := []string{"EUR", "RUB", "USD"}
 	bank := []string{"alpha", "sber", "tink"}
 
@@ -72,7 +74,7 @@ func generateOrderPayment(order *Order) {
 
 	deliveryCost := float64(1 + rand.Intn(1500))
 
-	order.Payment = Payment{
+	order.Payment = models.Payment{
 		Transaction:  order.OrderUid,
 		RequestId:    "",
 		Currency:     currency[rand.Intn(len(currency))],
@@ -87,14 +89,14 @@ func generateOrderPayment(order *Order) {
 }
 
 // Генерация случайных товаров
-func generateOrderItems(order *Order) {
+func generateOrderItems(order *models.Order) {
 
 	for i := range order.Items {
 		price := float64(rand.Intn(10000))
 		sale := float64(rand.Intn(100)) // Случайная скидка от 0 до 100
 		totalPrice := price * ((100 - sale) / 100.0)
 
-		order.Items[i] = Item{
+		order.Items[i] = models.Item{
 			ChrtId:      uint32(rand.Intn(10000000)),
 			TrackNumber: order.TrackNumber,
 			Price:       price,

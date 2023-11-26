@@ -54,7 +54,7 @@ func (ns *Nats) Publish(message *models.Order) error {
 // получение сообщений (подписка на сообщения)
 func (ns *Nats) Subscribe() (*models.Order, error) {
 
-	var rc *models.Order
+	var rc models.Order
 
 	ch := make(chan *models.Order)
 	/*Подписывается на тему в NATS через ns.sc.Subscribe, который
@@ -68,7 +68,7 @@ func (ns *Nats) Subscribe() (*models.Order, error) {
 			fmt.Printf("Error at Unmarshaling: %v", err)
 		}
 
-		ch <- rc //cообщ отправляется в канал
+		ch <- &rc //cообщ отправляется в канал
 	})
 
 	if err != nil {
@@ -83,7 +83,6 @@ func (ns *Nats) Subscribe() (*models.Order, error) {
 	case rc := <-ch:
 		return rc, nil
 	case <-time.After(60 * time.Second):
-		return nil, stan.ErrTimeout
+		return nil, stan.ErrTimeout //ОШИБКА:В КАНАЛЕ ПУСТО
 	}
-
 }

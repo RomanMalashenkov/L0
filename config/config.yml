@@ -1,14 +1,14 @@
 app:
-  name: 'L0_WB'
+  name: 'L0'
   version: '1.0'
 
 postgres:
-  host: ''
+  host: '127.0.0.1'
   port: '5432'
-  user: 'order_service_user'
+  user: 'postgres'
   password: '1234'
-  name: 'testwb_database'
-  pg_driver: ''
+  name: 'db_wb'
+  pg_driver: 'pq'
 
 http:
   host: ''

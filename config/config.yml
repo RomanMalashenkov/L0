@@ -11,12 +11,12 @@ postgres:
   pg_driver: 'pq'
 
 http:
-  host: ''
-  port: ''
+  host: 'localhost'
+  port: '8000'
 
 nats:
   host: 'localhost'
   port: '4222'
-  cluster: ''
-  client: ''
-  topic: ''
+  cluster: 'my_cluster'
+  client: 'event-listener'
+  topic: 'main-chanel'

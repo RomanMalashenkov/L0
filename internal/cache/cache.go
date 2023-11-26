@@ -34,12 +34,12 @@ func (oc *OrderCache) CreateCache(order models.Order) {
 	fmt.Printf("Cache written: %s\n", order.OrderUid)
 }
 
-// возвращение всего кэша
+// возвращение заказа
 func (oc *OrderCache) GetOrderByUid(uid string) *models.Order {
 	return oc.cache[uid]
 }
 
-// возвращение заказа
+// возвращение всего кэша
 func (oc *OrderCache) GetOrders() map[string]*models.Order {
 	return oc.cache
 }

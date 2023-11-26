@@ -43,14 +43,14 @@ type Nats struct {
 func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
-	err := cleanenv.ReadConfig("config.yml", cfg) //  !!!!  в гите тут исправить "config.yml"
+	err := cleanenv.ReadConfig("C:/go_pr/L0/config/config.yml", cfg) //  !!!!  в гите тут исправить "config.yml"
 	if err != nil {
 		return nil, fmt.Errorf("Config error: %v", err)
 	}
 
 	err = cleanenv.ReadEnv(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Environment reading error: %v", err)
+		return nil, fmt.Errorf("environment reading error: %v", err)
 
 	}
 

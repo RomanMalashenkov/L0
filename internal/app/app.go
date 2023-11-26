@@ -2,11 +2,14 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"test_wb/config"
 	"test_wb/internal/cache"
 	"test_wb/internal/nats"
+	"test_wb/internal/orders/controller"
 	"test_wb/internal/orders/generator"
 	"test_wb/internal/repository"
+	"test_wb/pkg/httpserver"
 	"test_wb/pkg/postgres"
 	"time"
 )
@@ -39,11 +42,11 @@ func Start(cfg *config.Config) {
 	go func() {
 		for {
 			order := generator.GenerateOrder()
-			fmt.Println("Order sent")
-			err := nStart.Publish(order)
+			fmt.Println("Order sent")    //заказ отправлен
+			err := nStart.Publish(order) //
 
 			if err != nil {
-				fmt.Printf("Error at publishing: %v\n", err)
+				fmt.Printf("Error while publishing: %v\n", err)
 			}
 
 			time.Sleep(30 * time.Second)
@@ -54,13 +57,13 @@ func Start(cfg *config.Config) {
 	go func() {
 		for {
 			mes, err := nStart.Subscribe()
-			fmt.Println("Order received")
+			fmt.Println("Order received") //заказ получен
 			if err != nil {
-				fmt.Printf("Error at subscribing: %v", err)
+				fmt.Printf("Error while subscribing: %v", err)
 			}
 
 			if err != nil {
-				fmt.Printf("Error at Unmarshaling: %v", err)
+				fmt.Printf("Error while Unmarshaling: %v", err)
 			}
 
 			orderCache.CreateCache(*mes)
@@ -71,4 +74,12 @@ func Start(cfg *config.Config) {
 		}
 	}()
 
+	httpServer := httpserver.NewServer()
+	orderController := controller.NewOrderController(orderCache)
+
+	serverStartingError := httpServer.Start(orderController.GetOrderController, orderController.GetAllOrders)
+
+	if serverStartingError != nil {
+		log.Fatalf("Error at server starting: %v", serverStartingError)
+	}
 }

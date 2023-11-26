@@ -3,9 +3,11 @@ package app
 import (
 	"fmt"
 	"test_wb/config"
+	"test_wb/internal/cache"
 	"test_wb/internal/nats"
 	"test_wb/internal/orders/generator"
 	"test_wb/internal/repository"
+	"test_wb/pkg/postgres"
 	"time"
 )
 
@@ -15,7 +17,23 @@ func Start(cfg *config.Config) {
 	fmt.Println("Nats server is running, successfully connected")
 
 	//подключаем бд
-	postgresConnection, err := repository.ConnectionPG(&cfg.PG)
+	postgresConnect, err := postgres.ConnectionPG(&cfg.PG)
+
+	if err != nil {
+		fmt.Printf("Error connecting to Postgresql: %v", err)
+	}
+	defer postgresConnect.Close()
+
+	// соед-е бд
+	repo := repository.NewRepository(postgresConnect)
+	dbCreatErr := repo.CreateTable()
+
+	if dbCreatErr != nil {
+		fmt.Printf("Error creating table: %v", dbCreatErr)
+	}
+
+	// созд-е кэша
+	orderCache := cache.NewCache(repo)
 
 	//публикация(отправка заказов)в натс каждые 30 сек
 	go func() {

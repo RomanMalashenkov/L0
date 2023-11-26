@@ -9,7 +9,7 @@ import (
 )
 
 func ConnectionPG(cfg *config.PG) (*pgxpool.Pool, error) {
-	connect := fmt.Sprintf("postgres://%v:%v@%v:%v/%v",
+	connect := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.PgName)
 
 	return pgxpool.Connect(context.Background(), connect)

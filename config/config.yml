@@ -15,8 +15,8 @@ http:
   port: '8000'
 
 nats:
-  host: 'localhost'
+  host: '0.0.0.0'
   port: '4222'
-  cluster: 'my_cluster'
+  cluster: 'test-cluster'
   client: 'event-listener'
   topic: 'main-chanel'

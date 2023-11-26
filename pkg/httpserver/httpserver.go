@@ -10,7 +10,7 @@ type Server struct {
 func NewServer() *Server {
 	return &Server{
 		echo: echo.New(),
-		port: ":8080",
+		port: ":8000",
 	}
 }
 

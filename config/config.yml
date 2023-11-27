@@ -7,7 +7,7 @@ postgres:
   port: '5432'
   user: 'postgres'
   password: '1234'
-  name: 'db_wb'
+  name: 'postgres'
   pg_driver: 'pq'
 
 http:

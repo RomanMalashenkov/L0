@@ -21,7 +21,7 @@ func NewRepository(pool *pgxpool.Pool) *Repo {
 func (r *Repo) CreateTable() error {
 	_, err := r.pool.Exec(context.Background(), `
 	CREATE TABLE IF NOT EXISTS orders (
-		order_uid VARCHAR(50) PRIMARY KEY NOT NULL,
+		order_uid VARCHAR(50) PRIMARY KEY,
 		track_number VARCHAR(50) NOT NULL,
 		entry VARCHAR(55) NOT NULL,
 		delivery_info JSONB,

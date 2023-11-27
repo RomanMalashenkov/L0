@@ -26,15 +26,19 @@ func NewNats(ncfg *config.Nats) *Nats {
 		fmt.Printf("Can't connect to Nats: %v", err)
 		return nil
 	}
-	defer nc.Close()
+	//defer nc.Close()
 
 	// Подключение к кластеру NATS Streaming
-	sc, err := stan.Connect(ncfg.Cluster, ncfg.Client) // stan.NatsConn(nc) - это метод или функция, используемая для создания подключения к NATS Streaming через уже установленное соединение NATS.
+	sc, err := stan.Connect(ncfg.Cluster, ncfg.Client,
+		stan.Pings(10, 3),
+		stan.SetConnectionLostHandler(func(_ stan.Conn, err error) {
+			fmt.Printf("Connection lost: %v", err)
+		})) // stan.NatsConn(nc) - это метод или функция, используемая для создания подключения к NATS Streaming через уже установленное соединение NATS.
 	if err != nil {
 		fmt.Printf("Can't connect to Nats-Streaming: %v", err)
 		return nil
 	}
-	defer sc.Close()
+	//defer sc.Close()
 
 	return &Nats{ncfg, sc, nc}
 }

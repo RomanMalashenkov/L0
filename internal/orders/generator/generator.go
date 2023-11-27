@@ -1,6 +1,8 @@
 package generator
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -11,8 +13,8 @@ import (
 )
 
 func GenerateOrder() *models.Order {
-	orderUid := uuid.NewString() // Генерация уникального идентификатора заказа
-
+	//orderUid := uuid.NewString() // Генерация уникального идентификатора заказа
+	orderUid := hash32bit()
 	var itemCount = 1 + rand.Intn(5) // Генерация случайного количества товаров от 1 до 5
 	items := make([]models.Item, itemCount)
 	for i := range items {
@@ -132,4 +134,10 @@ func generateOrderItems(order *models.Order) {
 			Status:      202,
 		}
 	}
+
+}
+
+func hash32bit() string {
+	sum := md5.Sum([]byte(strconv.Itoa(rand.Intn(150000))))
+	return hex.EncodeToString(sum[:])
 }

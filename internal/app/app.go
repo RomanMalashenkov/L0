@@ -16,7 +16,7 @@ import (
 
 func Start(cfg *config.Config) {
 	//подключаем натс стриминг
-	nStart := nats.NewNats(&cfg.Nats)
+	ns := nats.NewNats(&cfg.Nats)
 	fmt.Println("Nats server is running, successfully connected")
 
 	//подключаем бд
@@ -42,8 +42,8 @@ func Start(cfg *config.Config) {
 	go func() {
 		for {
 			order := generator.GenerateOrder()
-			fmt.Println("Order sent")    //заказ отправлен
-			err := nStart.Publish(order) //
+			fmt.Println("Order sent") //заказ отправлен
+			err := ns.Publish(order)  //
 
 			if err != nil {
 				fmt.Printf("Error while publishing: %v\n", err)
@@ -56,7 +56,7 @@ func Start(cfg *config.Config) {
 	//подписка(получение сообщений от натса и сохраняет их в кэш)
 	go func() {
 		for {
-			mes, err := nStart.Subscribe()
+			mes, _ := ns.Subscribe()
 			fmt.Println("Order received") //заказ получен
 			if err != nil {
 				fmt.Printf("Error while subscribing: %v", err)

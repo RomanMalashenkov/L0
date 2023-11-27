@@ -20,20 +20,20 @@ func NewRepository(pool *pgxpool.Pool) *Repo {
 func (r *Repo) CreateTable() error {
 	_, err := r.pool.Exec(context.Background(), `
 	CREATE TABLE IF NOT EXISTS "order" (
-		order_uid VARCHAR(50) PRIMARY KEY ,
-		track_number VARCHAR(50) NOT NULL UNIQUE,
-		entry VARCHAR(55) NOT NULL,
+		order_uid VARCHAR(255) PRIMARY KEY,
+		track_number VARCHAR(255), 
+		entry VARCHAR(255),
 		delivery_info JSONB,
 		payment_info JSONB,
 		items JSONB,
-		locale VARCHAR(2) NOT NULL,
-		internal_signature VARCHAR(50) NOT NULL,
-			customer_id VARCHAR(50) NOT NULL,
-			delivery_service VARCHAR(50) NOT NULL,
-			shardkey VARCHAR(50) NOT NULL,
-			sm_id BIGINT CHECK (sm_id > 0),
-		date_created TIMESTAMP NOT NULL,
-		oof_shard VARCHAR(50) NOT NULL
+		locale VARCHAR(255),
+		internal_signature VARCHAR(255),
+			customer_id VARCHAR(255),
+			delivery_service VARCHAR(255),
+			shardkey VARCHAR(255),
+			sm_id VARCHAR(255),
+		date_created TIMESTAMP,
+		oof_shard VARCHAR(255)
 	)
 `)
 	return err
@@ -49,3 +49,20 @@ func (r *Repo) SaveOrder(order models.Order) error {
 
 	return err
 }
+
+/*
+	order_uid VARCHAR(50) PRIMARY KEY,
+	track_number VARCHAR(50) NOT NULL,
+	entry VARCHAR(55) NOT NULL,
+	delivery_info JSONB,
+	payment_info JSONB,
+	items JSONB,
+	locale VARCHAR(2) NOT NULL,
+	internal_signature VARCHAR(50) NOT NULL,
+		customer_id VARCHAR(50) NOT NULL,
+		delivery_service VARCHAR(50) NOT NULL,
+		shardkey VARCHAR(50) NOT NULL,
+		sm_id BIGINT CHECK (sm_id > 0),
+	date_created TIMESTAMP NOT NULL,
+	oof_shard VARCHAR(50) NOT NULL
+*/

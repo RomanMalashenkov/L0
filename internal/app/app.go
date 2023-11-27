@@ -29,15 +29,21 @@ func Start(cfg *config.Config) {
 
 	// соед-е бд
 	repo := repository.NewRepository(postgresConnect)
+
+	/*// Загрузка заказов из базы данных в кэш
+	if err := orderCache.UpdateCacheFromDB(); err != nil {
+		fmt.Printf("Error updating cache from database: %v\n", err)
+	}*/
+
 	dbCreatErr := repo.CreateTable()
 
 	if dbCreatErr != nil {
 		fmt.Printf("Error creating table: %v", dbCreatErr)
 	}
 
-	// созд-е кэша
+	// созд-е кэша (из бд)
 	orderCache := cache.NewCache(repo)
-
+	orderCache.Preload()
 	//публикация(отправка заказов)в натс каждые 30 сек
 	go func() {
 		for {
@@ -56,7 +62,7 @@ func Start(cfg *config.Config) {
 	//подписка(получение сообщений от натса и сохраняет их в кэш)
 	go func() {
 		for {
-			mes, _ := ns.Subscribe()
+			mes, err := ns.Subscribe()
 			fmt.Println("Order received") //заказ получен
 			if err != nil {
 				fmt.Printf("Error while subscribing: %v", err)

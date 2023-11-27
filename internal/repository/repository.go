@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"test_wb/internal/models"
 
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -20,20 +21,20 @@ func NewRepository(pool *pgxpool.Pool) *Repo {
 func (r *Repo) CreateTable() error {
 	_, err := r.pool.Exec(context.Background(), `
 	CREATE TABLE IF NOT EXISTS orders (
-		order_uid VARCHAR(255) PRIMARY KEY,
-		track_number VARCHAR(255), 
-		entry VARCHAR(255),
+		order_uid VARCHAR(50) PRIMARY KEY NOT NULL,
+		track_number VARCHAR(50) NOT NULL,
+		entry VARCHAR(55) NOT NULL,
 		delivery_info JSONB,
 		payment_info JSONB,
 		items JSONB,
-		locale VARCHAR(255),
-		internal_signature VARCHAR(255),
-			customer_id VARCHAR(255),
-			delivery_service VARCHAR(255),
-			shardkey VARCHAR(255),
-			sm_id VARCHAR(255),
-		date_created TIMESTAMP,
-		oof_shard VARCHAR(255)
+		locale VARCHAR(2) NOT NULL,
+		internal_signature VARCHAR(50) NOT NULL,
+		customer_id VARCHAR(50) NOT NULL,
+		delivery_service VARCHAR(50) NOT NULL,
+		shardkey VARCHAR(50) NOT NULL,
+		sm_id BIGINT CHECK (sm_id > 0),
+		date_created TIMESTAMP NOT NULL,
+		oof_shard VARCHAR(50) NOT NULL
 	)
 `)
 	return err
@@ -50,19 +51,80 @@ func (r *Repo) SaveOrder(order models.Order) error {
 	return err
 }
 
-/*
-	order_uid VARCHAR(50) PRIMARY KEY,
-	track_number VARCHAR(50) NOT NULL,
-	entry VARCHAR(55) NOT NULL,
-	delivery_info JSONB,
-	payment_info JSONB,
-	items JSONB,
-	locale VARCHAR(2) NOT NULL,
-	internal_signature VARCHAR(50) NOT NULL,
-		customer_id VARCHAR(50) NOT NULL,
-		delivery_service VARCHAR(50) NOT NULL,
-		shardkey VARCHAR(50) NOT NULL,
-		sm_id BIGINT CHECK (sm_id > 0),
-	date_created TIMESTAMP NOT NULL,
-	oof_shard VARCHAR(50) NOT NULL
-*/
+func (r *Repo) GetALl() ([]models.Order, error) {
+
+	res, err := r.pool.Query(context.Background(),
+		`SELECT * FROM main`)
+
+	if err != nil {
+		fmt.Printf("Error at getting all orders: %v\n", err)
+		return nil, err
+	}
+
+	defer res.Close()
+
+	var orders []models.Order
+	for res.Next() {
+		var execOrder models.Order
+		err := res.Scan(
+			&execOrder.OrderUid,
+			&execOrder.TrackNumber,
+			&execOrder.Entry,
+			&execOrder.Delivery,
+			&execOrder.Payment,
+			&execOrder.Items,
+			&execOrder.Locale,
+			&execOrder.InternalSignature,
+			&execOrder.CustomerId,
+			&execOrder.DeliveryService,
+			&execOrder.ShardKey,
+			&execOrder.SmId,
+			&execOrder.DateCreated,
+			&execOrder.OofShard,
+		)
+
+		if err != nil {
+			fmt.Printf("Error at parsing preloading: %v\n", err)
+		}
+
+		orders = append(orders, execOrder)
+	}
+
+	if err := res.Err(); err != nil {
+		fmt.Printf("Error at final getting orders: %v\n", err)
+		return nil, err
+	}
+	fmt.Println("Orders preloaded DB -> Cache")
+	return orders, nil
+}
+
+// useless, т.к. все заказы разом подгружаются в кэш и данные http запросов читаются из кэша
+func (r *Repo) GetOrder(uid string) (models.Order, error) {
+
+	var execOrder models.Order
+
+	err := r.pool.QueryRow(context.Background(), `SELECT * FROM main WHERE order_uid = $1`, uid).
+		Scan(
+			&execOrder.OrderUid,
+			&execOrder.TrackNumber,
+			&execOrder.Entry,
+			&execOrder.Delivery,
+			&execOrder.Payment,
+			&execOrder.Items,
+			&execOrder.Locale,
+			&execOrder.InternalSignature,
+			&execOrder.CustomerId,
+			&execOrder.DeliveryService,
+			&execOrder.ShardKey,
+			&execOrder.SmId,
+			&execOrder.DateCreated,
+			&execOrder.OofShard,
+		)
+
+	if err != nil {
+		return execOrder, err
+	}
+
+	return execOrder, nil
+
+}

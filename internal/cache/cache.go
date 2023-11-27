@@ -34,6 +34,20 @@ func (oc *OrderCache) CreateCache(order models.Order) {
 	fmt.Printf("Cache written: %s\n", order.OrderUid)
 }
 
+func (oc *OrderCache) Preload() {
+
+	ors, err := oc.dbRepo.GetALl()
+	if err != nil {
+		fmt.Printf("Error at DB: %v\n", err)
+	}
+	fmt.Printf("DB returns len: %d\n", len(ors))
+	oc.mu.Lock()
+	for _, or := range ors {
+		oc.cache[or.OrderUid] = &or
+	}
+	oc.mu.Unlock()
+}
+
 // возвращение заказа
 func (oc *OrderCache) GetOrderByUid(uid string) *models.Order {
 	return oc.cache[uid]

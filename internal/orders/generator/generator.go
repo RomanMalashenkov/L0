@@ -15,7 +15,7 @@ import (
 func GenerateOrder() *models.Order {
 	//orderUid := uuid.NewString() // Генерация уникального идентификатора заказа
 	orderUid := hash32bit()
-	var itemCount = 1 + rand.Intn(5) // Генерация случайного количества товаров от 1 до 5
+	var itemCount = 1 + rand.Intn(2) // Генерация случайного количества товаров от 1 до 2
 	items := make([]models.Item, itemCount)
 	for i := range items {
 		items[i] = models.Item{

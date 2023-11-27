@@ -19,7 +19,7 @@ func NewRepository(pool *pgxpool.Pool) *Repo {
 
 func (r *Repo) CreateTable() error {
 	_, err := r.pool.Exec(context.Background(), `
-	CREATE TABLE IF NOT EXISTS "order" (
+	CREATE TABLE IF NOT EXISTS orders (
 		order_uid VARCHAR(255) PRIMARY KEY,
 		track_number VARCHAR(255), 
 		entry VARCHAR(255),
@@ -41,7 +41,7 @@ func (r *Repo) CreateTable() error {
 
 func (r *Repo) SaveOrder(order models.Order) error {
 	_, err := r.pool.Exec(context.Background(), `
-        INSERT INTO "order" (order_uid, track_number, entry, delivery_info, payment_info, items, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard)
+        INSERT INTO orders (order_uid, track_number, entry, delivery_info, payment_info, items, locale, internal_signature, customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
     `, order.OrderUid, order.TrackNumber, order.Entry, order.Delivery, order.Payment,
 		order.Items, order.Locale, order.InternalSignature, order.CustomerId,

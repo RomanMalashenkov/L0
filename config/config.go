@@ -45,7 +45,7 @@ func NewConfig() (*Config, error) {
 
 	err := cleanenv.ReadConfig("C:/go_pr/L0/config/config.yml", cfg) //  !!!!  в гите тут исправить "config.yml"
 	if err != nil {
-		return nil, fmt.Errorf("Config error: %v", err)
+		return nil, fmt.Errorf("config error: %v", err)
 	}
 
 	err = cleanenv.ReadEnv(cfg)

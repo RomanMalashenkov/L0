@@ -30,11 +30,6 @@ func Start(cfg *config.Config) {
 	// соед-е бд
 	repo := repository.NewRepository(postgresConnect)
 
-	/*// Загрузка заказов из базы данных в кэш
-	if err := orderCache.UpdateCacheFromDB(); err != nil {
-		fmt.Printf("Error updating cache from database: %v\n", err)
-	}*/
-
 	dbCreatErr := repo.CreateTable()
 
 	if dbCreatErr != nil {
@@ -44,6 +39,7 @@ func Start(cfg *config.Config) {
 	// созд-е кэша (из бд)
 	orderCache := cache.NewCache(repo)
 	orderCache.Preload()
+
 	//публикация(отправка заказов)в натс каждые 30 сек
 	go func() {
 		for {
@@ -73,8 +69,6 @@ func Start(cfg *config.Config) {
 			}
 
 			orderCache.CreateCache(*mes)
-
-			fmt.Println(cfg.Topic, ": ", mes.OrderUid)
 
 			time.Sleep(30 * time.Second)
 		}

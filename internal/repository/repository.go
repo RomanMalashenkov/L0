@@ -54,7 +54,7 @@ func (r *Repo) SaveOrder(order models.Order) error {
 func (r *Repo) GetALl() ([]models.Order, error) {
 
 	res, err := r.pool.Query(context.Background(),
-		`SELECT * FROM main`)
+		`SELECT * FROM orders`)
 
 	if err != nil {
 		fmt.Printf("Error at getting all orders: %v\n", err)
@@ -98,12 +98,11 @@ func (r *Repo) GetALl() ([]models.Order, error) {
 	return orders, nil
 }
 
-// useless, т.к. все заказы разом подгружаются в кэш и данные http запросов читаются из кэша
 func (r *Repo) GetOrder(uid string) (models.Order, error) {
 
 	var execOrder models.Order
 
-	err := r.pool.QueryRow(context.Background(), `SELECT * FROM main WHERE order_uid = $1`, uid).
+	err := r.pool.QueryRow(context.Background(), `SELECT * FROM orders WHERE order_uid = $1`, uid).
 		Scan(
 			&execOrder.OrderUid,
 			&execOrder.TrackNumber,

@@ -43,9 +43,22 @@ func (oc *OrderCache) Preload() {
 	fmt.Printf("DB returns len: %d\n", len(ors))
 	oc.mu.Lock()
 	for _, or := range ors {
-		oc.cache[or.OrderUid] = &or
+		// Создаем копию переменной or для каждой итерации цикла
+		// и добавляем эту копию в кэш
+		copyOrder := or
+		oc.cache[copyOrder.OrderUid] = &copyOrder
 	}
 	oc.mu.Unlock()
+	/*ors, err := oc.dbRepo.GetALl()
+	if err != nil {
+		fmt.Printf("Error at DB: %v\n", err)
+	}
+	fmt.Printf("DB returns len: %d\n", len(ors))
+	oc.mu.Lock()
+	for _, or := range ors {
+		oc.cache[or.OrderUid] = &or
+	}
+	oc.mu.Unlock()*/
 }
 
 // возвращение заказа

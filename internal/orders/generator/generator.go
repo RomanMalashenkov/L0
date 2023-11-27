@@ -57,7 +57,7 @@ func GenerateOrder() *models.Order {
 		CustomerId:        "test",
 		DeliveryService:   "meest",
 		ShardKey:          "9",
-		SmId:              99,
+		SmId:              "99",
 		DateCreated:       time.Now().Format(time.RFC3339),
 		OofShard:          "1",
 	}

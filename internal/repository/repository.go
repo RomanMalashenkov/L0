@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"test_wb/internal/models"
 
@@ -22,19 +23,19 @@ func (r *Repo) CreateTable() error {
 	_, err := r.pool.Exec(context.Background(), `
 	CREATE TABLE IF NOT EXISTS orders (
 		order_uid VARCHAR(50) PRIMARY KEY,
-		track_number VARCHAR(50) NOT NULL,
-		entry VARCHAR(55) NOT NULL,
+		track_number VARCHAR(50),
+		entry VARCHAR(55),
 		delivery_info JSONB,
 		payment_info JSONB,
 		items JSONB,
-		locale VARCHAR(2) NOT NULL,
-		internal_signature VARCHAR(50) NOT NULL,
-		customer_id VARCHAR(50) NOT NULL,
-		delivery_service VARCHAR(50) NOT NULL,
-		shardkey VARCHAR(50) NOT NULL,
-		sm_id BIGINT CHECK (sm_id > 0),
-		date_created TIMESTAMP NOT NULL,
-		oof_shard VARCHAR(50) NOT NULL
+		locale VARCHAR(2),
+		internal_signature VARCHAR(50),
+		customer_id VARCHAR(50),
+		delivery_service VARCHAR(50),
+		shardkey VARCHAR(50),
+		sm_id VARCHAR(50),
+		date_created VARCHAR(50),
+		oof_shard VARCHAR(50)
 	)
 `)
 	return err
@@ -52,6 +53,7 @@ func (r *Repo) SaveOrder(order models.Order) error {
 }
 
 func (r *Repo) GetALl() ([]models.Order, error) {
+	fmt.Println("Attempting to retrieve orders from the database...") //sdf
 
 	res, err := r.pool.Query(context.Background(),
 		`SELECT * FROM orders`)
@@ -66,13 +68,16 @@ func (r *Repo) GetALl() ([]models.Order, error) {
 	var orders []models.Order
 	for res.Next() {
 		var execOrder models.Order
+		var deliveryJSON, paymentJSON, itemsJSON []byte // JSON в виде []byte
+
+		// Сканирование всех столбцов, включая JSONB
 		err := res.Scan(
 			&execOrder.OrderUid,
 			&execOrder.TrackNumber,
 			&execOrder.Entry,
-			&execOrder.Delivery,
-			&execOrder.Payment,
-			&execOrder.Items,
+			&deliveryJSON,
+			&paymentJSON,
+			&itemsJSON,
 			&execOrder.Locale,
 			&execOrder.InternalSignature,
 			&execOrder.CustomerId,
@@ -85,7 +90,36 @@ func (r *Repo) GetALl() ([]models.Order, error) {
 
 		if err != nil {
 			fmt.Printf("Error at parsing preloading: %v\n", err)
+			continue // Продолжить цикл даже при ошибке чтения строки
 		}
+
+		/////////////////////////
+		// Распаковка JSON в соответствующие структуры
+		var delivery models.Delivery
+		err = json.Unmarshal([]byte(deliveryJSON), &delivery)
+		if err != nil {
+			fmt.Printf("Error unmarshaling delivery_info: %v\n", err)
+			continue
+		}
+		execOrder.Delivery = delivery
+
+		var payment models.Payment
+		err = json.Unmarshal([]byte(paymentJSON), &payment)
+		if err != nil {
+			fmt.Printf("Error unmarshaling payment_info: %v\n", err)
+			continue
+		}
+		execOrder.Payment = payment
+
+		var items []models.Item
+		err = json.Unmarshal([]byte(itemsJSON), &items)
+		if err != nil {
+			fmt.Printf("Error unmarshaling items: %v\n", err)
+			continue
+		}
+		execOrder.Items = items
+
+		///////////////////////////
 
 		orders = append(orders, execOrder)
 	}
@@ -94,7 +128,9 @@ func (r *Repo) GetALl() ([]models.Order, error) {
 		fmt.Printf("Error at final getting orders: %v\n", err)
 		return nil, err
 	}
-	fmt.Println("Orders preloaded DB -> Cache")
+	//fmt.Println("Orders preloaded DB -> Cache")
+	fmt.Printf("Retrieved %d orders from the database\n", len(orders)) // Добавлено сообщение о количестве полученных заказов
+
 	return orders, nil
 }
 

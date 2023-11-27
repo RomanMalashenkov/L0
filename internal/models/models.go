@@ -49,7 +49,7 @@ type Order struct {
 	CustomerId        string   `json:"customer_id"`
 	DeliveryService   string   `json:"delivery_service"`
 	ShardKey          string   `json:"shard_key"`
-	SmId              uint32   `json:"sm_id"`
+	SmId              string   `json:"sm_id"` //было uint32
 	DateCreated       string   `json:"date_created"`
 	OofShard          string   `json:"oof_shard"`
 }

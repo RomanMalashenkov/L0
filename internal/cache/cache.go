@@ -21,17 +21,17 @@ func NewCache(repo *repository.Repo) *OrderCache {
 	}
 }
 
-func (oc *OrderCache) CreateCache(order models.Order) {
-	err := oc.dbRepo.SaveOrder(order)
+func (oc *OrderCache) CreateCache(ord models.Order) {
+	err := oc.dbRepo.SaveOrder(ord)
 
 	if err != nil {
 		fmt.Printf("Cannot insert order: %v", err)
 	}
 
 	oc.mu.Lock()
-	oc.cache[order.OrderUid] = &order // запись данных в кэш
+	oc.cache[ord.OrderUid] = &ord // запись данных в кэш
 	oc.mu.Unlock()
-	fmt.Printf("Cache written: %s\n", order.OrderUid)
+	fmt.Printf("Cache written: %s\n", ord.OrderUid)
 }
 
 func (oc *OrderCache) Preload() {

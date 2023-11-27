@@ -45,7 +45,7 @@ func Start(cfg *config.Config) {
 		for {
 			order := generator.GenerateOrder()
 			fmt.Println("Order sent") //заказ отправлен
-			err := ns.Publish(order)  //
+			err := ns.Publish(*order) //
 
 			if err != nil {
 				fmt.Printf("Error while publishing: %v\n", err)
@@ -78,7 +78,6 @@ func Start(cfg *config.Config) {
 	orderController := controller.NewOrderController(orderCache)
 
 	serverStartingError := httpServer.Start(orderController.GetOrderController, orderController.GetAllOrders)
-
 	if serverStartingError != nil {
 		log.Fatalf("Error at server starting: %v", serverStartingError)
 	}

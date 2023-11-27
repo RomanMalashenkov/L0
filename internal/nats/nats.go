@@ -44,7 +44,7 @@ func NewNats(ncfg *config.Nats) *Nats {
 }
 
 // отправка сообщений (публикация сообщ о заказе)
-func (ns *Nats) Publish(message *models.Order) error {
+func (ns *Nats) Publish(message models.Order) error {
 
 	ord, err := json.MarshalIndent(message, "", "\t")
 
